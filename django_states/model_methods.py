@@ -116,6 +116,26 @@ def get_STATE_info(self, field='state', machine=None):
                 if getattr(self, field) in t.from_states:
                     yield t
 
+        def allowed_transitions(si_self, user=None):
+            """
+            Return list of transitions which can be made from the current
+            state by this specific user.
+
+            :param user: the user that will execute the transition. Used for
+                permission checking
+            :type: :class:`django.contrib.auth.models.User` or ``None``
+            :return:
+            """
+            allowed_transitions = []
+            for trans in si_self.possible_transitions:
+                try:
+                    if si_self.test_transition(trans.get_name(), user):
+                        allowed_transitions.append(trans)
+                except:
+                    pass
+
+            return allowed_transitions
+
         def test_transition(si_self, transition, user=None):
             """
             Check whether we could execute this transition.
